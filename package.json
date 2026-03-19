@@ -1,0 +1,11 @@
+{
+  "name": "carrera",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "start": "node server/app-server.mjs",
+    "dev": "node server/app-server.mjs --dev"
+  }
+}

@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>VibeRacing Client</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script
+      src="https://cdn.jsdelivr.net/npm/@microsoft/signalr@10.0.0/dist/browser/signalr.js"
+      crossorigin="anonymous"
+    ></script>
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Fast compatibility build</p>
+          <h1>VibeRacing</h1>
+          <p class="subtitle">A lightweight frontend for the public multiplayer racing backend.</p>
+        </div>
+        <div class="status-panel">
+          <span id="connection-badge" class="badge badge-idle">Disconnected</span>
+          <span id="room-badge" class="badge badge-muted">No room</span>
+        </div>
+      </header>
+
+      <div id="status-bar" class="status-bar" role="status" aria-live="polite">
+        Ready to connect.
+      </div>
+      <div id="error-bar" class="error-bar" role="alert" hidden></div>
+
+      <main class="layout">
+        <section id="landing-view" class="view-card">
+          <h2>Join or create a lobby</h2>
+          <form id="join-form" class="stack">
+            <label class="field">
+              <span>Display name</span>
+              <input id="display-name" name="displayName" type="text" maxlength="20" placeholder="Racer name">
+            </label>
+
+            <label class="field">
+              <span>Room code (optional)</span>
+              <input id="room-code" name="roomCode" type="text" maxlength="6" placeholder="ABC123" autocomplete="off">
+            </label>
+
+            <button id="join-button" type="submit" class="primary-button">Join / Create Lobby</button>
+          </form>
+
+          <div class="info-box">
+            <h3>Controls</h3>
+            <ul>
+              <li><strong>Accelerate:</strong> W or Up Arrow</li>
+              <li><strong>Brake:</strong> S or Down Arrow</li>
+              <li><strong>Turn left:</strong> A or Left Arrow</li>
+              <li><strong>Turn right:</strong> D or Right Arrow</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="lobby-view" class="view-card" hidden>
+          <div class="section-header">
+            <div>
+              <h2>Lobby</h2>
+              <p id="lobby-summary" class="muted"></p>
+            </div>
+            <div class="button-row">
+              <button id="ready-button" type="button" class="primary-button">Ready up</button>
+              <button id="start-over-button" type="button" class="secondary-button">Start over</button>
+            </div>
+          </div>
+
+          <p id="lobby-note" class="notice" hidden></p>
+          <ul id="player-list" class="player-list" aria-live="polite"></ul>
+        </section>
+
+        <section id="countdown-view" class="view-card view-center" hidden>
+          <p class="eyebrow">Race starting</p>
+          <div id="countdown-number" class="countdown-number">3</div>
+          <p id="countdown-detail" class="muted"></p>
+        </section>
+
+        <section id="race-view" class="view-card" hidden>
+          <div class="section-header">
+            <div>
+              <h2>Race</h2>
+              <p id="race-summary" class="muted"></p>
+            </div>
+            <span class="badge badge-live">Live</span>
+          </div>
+
+          <div class="race-layout">
+            <div class="canvas-shell">
+              <canvas id="race-canvas" aria-label="Race track"></canvas>
+            </div>
+
+            <aside class="side-panel">
+              <div class="panel-card">
+                <h3>Local driver</h3>
+                <dl class="metric-grid">
+                  <div>
+                    <dt>Name</dt>
+                    <dd id="hud-display-name">-</dd>
+                  </div>
+                  <div>
+                    <dt>Lap</dt>
+                    <dd id="hud-lap">-</dd>
+                  </div>
+                  <div>
+                    <dt>Rank</dt>
+                    <dd id="hud-rank">-</dd>
+                  </div>
+                  <div>
+                    <dt>Speed</dt>
+                    <dd id="hud-speed">-</dd>
+                  </div>
+                  <div>
+                    <dt>Next checkpoint</dt>
+                    <dd id="hud-checkpoint">-</dd>
+                  </div>
+                  <div>
+                    <dt>Best lap</dt>
+                    <dd id="hud-best-lap">-</dd>
+                  </div>
+                </dl>
+              </div>
+
+              <div class="panel-card">
+                <h3>Standings</h3>
+                <ol id="standings-list" class="standings-list"></ol>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section id="results-view" class="view-card" hidden>
+          <div class="section-header">
+            <div>
+              <h2>Results</h2>
+              <p id="results-message" class="muted"></p>
+            </div>
+            <button id="back-to-lobby-button" type="button" class="secondary-button">Back to Lobby</button>
+          </div>
+
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Driver</th>
+                <th>Total time</th>
+                <th>Best lap</th>
+              </tr>
+            </thead>
+            <tbody id="results-body"></tbody>
+          </table>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,89 @@
+{
+  "mode": "greenfield",
+  "phase": "implementation",
+  "currentIncrement": "viberacing-frontend",
+  "lastUpdated": "2026-03-19T15:29:37.2519483Z",
+  "increments": {
+    "viberacing-frontend": {
+      "title": "VibeRacing browser client",
+      "status": "implemented",
+      "research": {
+        "technologies": [
+          {
+            "name": "ASP.NET Core SignalR JavaScript client",
+            "version": "10.0.0",
+            "source": "https://learn.microsoft.com/aspnet/core/signalr/javascript-client?view=aspnetcore-10.0",
+            "keyFinding": "Use relative /racehub for same-origin clients and opt in to automatic reconnect."
+          },
+          {
+            "name": "ASP.NET Core SignalR security guidance",
+            "version": "10.0.0",
+            "source": "https://learn.microsoft.com/aspnet/core/signalr/security?view=aspnetcore-10.0",
+            "keyFinding": "Cross-origin browser SignalR requires explicit CORS support, so the frontend uses a same-origin proxy."
+          },
+          {
+            "name": "Next.js rewrites",
+            "version": "docs updated 2026-02-02",
+            "source": "https://nextjs.org/docs/app/api-reference/config/next-config-js/rewrites",
+            "keyFinding": "External rewrites act as a proxy, but a custom static server was chosen because this repo had no existing framework runtime."
+          },
+          {
+            "name": "Node.js HTTP module",
+            "version": "current",
+            "source": "https://nodejs.org/api/http.html",
+            "keyFinding": "Built-in http/https primitives are sufficient for static hosting plus backend proxying."
+          }
+        ]
+      },
+      "slices": {
+        "web": {
+          "status": "done",
+          "lastVerified": "2026-03-19T15:29:37.2519483Z",
+          "modifiedFiles": [
+            ".gitignore",
+            "package.json",
+            "server/app-server.mjs",
+            "src/web/app.js",
+            "src/web/index.html",
+            "src/web/styles.css",
+            "tools/build.mjs"
+          ]
+        },
+        "integration": {
+          "status": "smoke-verified",
+          "lastVerified": "2026-03-19T15:29:37.2519483Z",
+          "checks": [
+            "GET /health returned 200 with {\"status\":\"ok\"} through the local proxy.",
+            "JoinLobby succeeded against the public backend and rendered the lobby.",
+            "ReadyUp triggered countdown and RaceStarted against the public backend."
+          ],
+          "notes": [
+            "The results view and race HUD are implemented, but the automated smoke test stopped at race start rather than a full finish flow."
+          ]
+        }
+      },
+      "failingTests": [],
+      "modifiedFiles": [
+        ".gitignore",
+        "package.json",
+        "server/app-server.mjs",
+        "src/web/app.js",
+        "src/web/index.html",
+        "src/web/styles.css",
+        "tools/build.mjs"
+      ]
+    }
+  },
+  "testsStatus": {
+    "build": "passed",
+    "smoke": {
+      "status": "passed",
+      "checks": [
+        "npm run build",
+        "browser fetch('/health')",
+        "browser join/create lobby flow",
+        "browser ready/countdown/race-start flow"
+      ]
+    }
+  }
+}
