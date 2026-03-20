@@ -1,1 +1,7 @@
 [2026-03-19T15:29:37.2519483Z] increment=viberacing-frontend slice=web action=implemented result=pass:build,health,join-lobby,ready-countdown,race-start
+[2026-03-19T19:40:54.5470081+01:00] increment=viberacing-frontend slice=web action=upgraded-3d result=pass:build,health,join-lobby,ready-countdown,race-start,threejs-render,input-verified
+[2026-03-19T21:35:34.2294441+01:00] increment=viberacing-frontend slice=web action=polished-3d result=pass:build,health,join-lobby,ready-countdown,race-start,input-verified,console-clean,screenshot
+[2026-03-19T22:01:54.5016150+01:00] step=bugfix action=test-created bug=bugfix-track-tile-rotation frd=specs/pr.md#REQ-006 test=tests/tile-surface-rotation.test.js result=failing
+[2026-03-19T22:01:54.5016150+01:00] step=bugfix action=fix-applied bug=bugfix-track-tile-rotation files=src/web/tile-surface-rotation.js,src/web/three-race-scene.js result=done
+[2026-03-19T22:01:54.5016150+01:00] step=bugfix action=regression-passed bug=bugfix-track-tile-rotation result=unit-test,build,live-smoke
+[2026-03-19T22:19:09.8888193+01:00] step=bugfix action=curve-rotation-adjusted bug=bugfix-track-tile-rotation result=curve-right-90,straight-unchanged,unit-test,build

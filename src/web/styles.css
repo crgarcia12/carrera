@@ -244,9 +244,10 @@ button:disabled {
 
 .canvas-shell {
   flex: 1 1 720px;
-  min-height: 420px;
+  min-height: 480px;
+  height: min(72vh, 760px);
   padding: 12px;
-  overflow: auto;
+  overflow: hidden;
   border-radius: 20px;
   background: rgba(2, 6, 23, 0.55);
   border: 1px solid rgba(148, 163, 184, 0.14);
@@ -255,9 +256,9 @@ button:disabled {
 #race-canvas {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
   border-radius: 18px;
-  background: #14532d;
+  background: #0b1120;
 }
 
 .side-panel {

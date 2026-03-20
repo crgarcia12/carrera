@@ -2,7 +2,7 @@
   "mode": "greenfield",
   "phase": "implementation",
   "currentIncrement": "viberacing-frontend",
-  "lastUpdated": "2026-03-19T15:29:37.2519483Z",
+  "lastUpdated": "2026-03-19T22:19:09.8888193+01:00",
   "increments": {
     "viberacing-frontend": {
       "title": "VibeRacing browser client",
@@ -32,33 +32,49 @@
             "version": "current",
             "source": "https://nodejs.org/api/http.html",
             "keyFinding": "Built-in http/https primitives are sufficient for static hosting plus backend proxying."
+          },
+          {
+            "name": "Three.js",
+            "version": "0.183.2",
+            "source": "https://threejs.org/docs/pages/Timer.html",
+            "keyFinding": "Use ES modules for browser delivery, size the renderer from the canvas client box, and prefer THREE.Timer over deprecated THREE.Clock."
           }
         ]
       },
       "slices": {
         "web": {
           "status": "done",
-          "lastVerified": "2026-03-19T15:29:37.2519483Z",
+          "lastVerified": "2026-03-19T22:19:09.8888193+01:00",
           "modifiedFiles": [
             ".gitignore",
             "package.json",
             "server/app-server.mjs",
             "src/web/app.js",
             "src/web/index.html",
+            "src/web/tile-surface-rotation.js",
+            "src/web/three-race-scene.js",
             "src/web/styles.css",
+            "tests/tile-surface-rotation.test.js",
             "tools/build.mjs"
           ]
         },
         "integration": {
           "status": "smoke-verified",
-          "lastVerified": "2026-03-19T15:29:37.2519483Z",
+          "lastVerified": "2026-03-19T22:19:09.8888193+01:00",
           "checks": [
             "GET /health returned 200 with {\"status\":\"ok\"} through the local proxy.",
             "JoinLobby succeeded against the public backend and rendered the lobby.",
-            "ReadyUp triggered countdown and RaceStarted against the public backend."
+            "ReadyUp triggered countdown and RaceStarted against the public backend.",
+            "The Three.js race scene rendered successfully in the live race view with zero browser console warnings or errors after the latest visual-polish pass.",
+            "Holding ArrowUp during the live race increased the HUD speed to 368 u/s, confirming input still reached the backend after the grounded-foundation camera/material update.",
+            "The latest visual pass replaced segmented track supports with a continuous grassy foundation, broader earthen banks, larger surrounding terrain, a procedural sky dome, and denser trackside scenery.",
+            "Track tile rotation mapping now swaps straight-tile axes and inverts curve-tile rotation so `TrackLoaded.tiles[].rotation` renders Dusty Fields with the correct road orientation."
           ],
           "notes": [
-            "The results view and race HUD are implemented, but the automated smoke test stopped at race start rather than a full finish flow."
+            "The results view and race HUD are implemented, but the automated smoke test stopped at race start rather than a full finish flow.",
+            "Latest screenshot artifact: race-3d-grounded-v4.png.",
+            "Bugfix traceability falls back to specs/pr.md REQ-006 because this repository has no specs/frd-*.md files yet.",
+            "Curve tiles were adjusted 90 degrees to the right relative to the prior mapping; straight tiles were left unchanged."
           ]
         }
       },
@@ -69,20 +85,40 @@
         "server/app-server.mjs",
         "src/web/app.js",
         "src/web/index.html",
+        "src/web/tile-surface-rotation.js",
+        "src/web/three-race-scene.js",
         "src/web/styles.css",
+        "tests/tile-surface-rotation.test.js",
         "tools/build.mjs"
       ]
+    },
+    "bugfix-track-tile-rotation": {
+      "type": "bugfix",
+      "frd": "specs/pr.md#REQ-006",
+      "description": "Correct Three.js track tile orientation for straight and curve tiles.",
+      "status": "done",
+      "testFile": "tests/tile-surface-rotation.test.js",
+      "fixedFiles": [
+        "src/web/tile-surface-rotation.js",
+        "src/web/three-race-scene.js"
+      ],
+      "completedAt": "2026-03-19T22:19:09.8888193+01:00"
     }
   },
   "testsStatus": {
+    "unit": "passed",
     "build": "passed",
     "smoke": {
       "status": "passed",
       "checks": [
+        "node --test tests/tile-surface-rotation.test.js",
         "npm run build",
         "browser fetch('/health')",
         "browser join/create lobby flow",
-        "browser ready/countdown/race-start flow"
+        "browser ready/countdown/race-start flow",
+        "browser Three.js race scene render",
+        "browser live race input updates",
+        "browser screenshot capture (race-3d-grounded-v4.png)"
       ]
     }
   }

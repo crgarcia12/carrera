@@ -1,3 +1,5 @@
+import { RaceScene3D } from "./three-race-scene.js";
+
 const DEFAULT_TOTAL_LAPS = 3;
 const INPUT_INTERVAL_MS = 16;
 const PHASES = ["landing", "lobby", "countdown", "race", "results"];
@@ -67,6 +69,7 @@ const dom = {
     PHASES.map((phase) => [phase, document.querySelector(`#${phase}-view`)])
   )
 };
+const raceScene = createRaceScene();
 
 initialize();
 
@@ -81,8 +84,22 @@ function initialize() {
   dom.backToLobbyButton.addEventListener("click", handleBackToLobby);
   window.addEventListener("keydown", handleKeyChange);
   window.addEventListener("keyup", handleKeyChange);
-  window.addEventListener("resize", renderRaceScene);
   render();
+}
+
+function createRaceScene() {
+  try {
+    return new RaceScene3D({
+      canvas: dom.raceCanvas,
+      getPlayerColor: colorForPlayer
+    });
+  } catch (error) {
+    console.error(error);
+    queueMicrotask(() => {
+      setError(`Unable to initialize the 3D renderer: ${error.message}`);
+    });
+    return null;
+  }
 }
 
 async function handleJoinSubmit(event) {
@@ -551,145 +568,17 @@ function renderResults() {
 }
 
 function renderRaceScene() {
-  const canvas = dom.raceCanvas;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) {
+  if (!raceScene) {
     return;
   }
-
-  if (!state.track) {
-    resizeCanvas(canvas, 960, 540);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#0f172a";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#cbd5e1";
-    ctx.font = "24px sans-serif";
-    ctx.fillText("Waiting for track data...", 40, 60);
-    return;
-  }
-
-  const width = state.track.cols * state.track.tileSize;
-  const height = state.track.rows * state.track.tileSize;
-  resizeCanvas(canvas, width, height);
-  ctx.clearRect(0, 0, width, height);
-
-  ctx.fillStyle = "#14532d";
-  ctx.fillRect(0, 0, width, height);
-
-  drawTiles(ctx, state.track);
 
   const localPlayer = (state.gameSnapshot?.players ?? []).find((player) => player.playerId === state.playerId);
-  drawCheckpoints(ctx, state.track, localPlayer?.nextCheckpointIndex ?? null);
-  drawStartSlots(ctx, state.track);
-  drawPlayers(ctx, state.gameSnapshot?.players ?? []);
-}
-
-function drawTiles(ctx, track) {
-  for (const tile of track.tiles ?? []) {
-    const x = tile.col * track.tileSize;
-    const y = tile.row * track.tileSize;
-    const size = track.tileSize;
-    const rotation = normalizeRotation(tile.rotation);
-
-    ctx.save();
-    ctx.translate(x + size / 2, y + size / 2);
-    ctx.rotate((rotation * Math.PI) / 180);
-
-    ctx.fillStyle = "#374151";
-    ctx.fillRect(-size / 2, -size / 2, size, size);
-    ctx.strokeStyle = "rgba(255,255,255,0.08)";
-    ctx.strokeRect(-size / 2, -size / 2, size, size);
-
-    ctx.strokeStyle = "#fef3c7";
-    ctx.lineWidth = Math.max(2, size * 0.05);
-    ctx.setLineDash([size * 0.12, size * 0.1]);
-
-    if (tile.type === "straight") {
-      ctx.beginPath();
-      ctx.moveTo(0, -size / 2 + 10);
-      ctx.lineTo(0, size / 2 - 10);
-      ctx.stroke();
-    } else {
-      ctx.beginPath();
-      ctx.moveTo(0, size * 0.28);
-      ctx.lineTo(0, 0);
-      ctx.lineTo(size * 0.28, 0);
-      ctx.stroke();
-    }
-
-    ctx.setLineDash([]);
-    ctx.restore();
-  }
-}
-
-function drawCheckpoints(ctx, track, nextCheckpointIndex) {
-  for (const checkpoint of track.checkpoints ?? []) {
-    if (checkpoint.index === nextCheckpointIndex) {
-      ctx.fillStyle = "rgba(250, 204, 21, 0.32)";
-    } else if (checkpoint.isFinishLine) {
-      ctx.fillStyle = "rgba(255, 255, 255, 0.22)";
-    } else {
-      ctx.fillStyle = "rgba(56, 189, 248, 0.15)";
-    }
-
-    ctx.fillRect(checkpoint.x, checkpoint.y, checkpoint.width, checkpoint.height);
-
-    if (checkpoint.isFinishLine) {
-      ctx.fillStyle = "rgba(15, 23, 42, 0.35)";
-      const stripes = 6;
-      for (let index = 0; index < stripes; index += 1) {
-        const stripeWidth = checkpoint.width / stripes;
-        ctx.fillRect(checkpoint.x + stripeWidth * index, checkpoint.y, stripeWidth / 2, checkpoint.height);
-      }
-    }
-  }
-}
-
-function drawStartSlots(ctx, track) {
-  ctx.font = "bold 12px sans-serif";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-
-  for (const start of track.startPositions ?? []) {
-    ctx.fillStyle = "rgba(255,255,255,0.2)";
-    ctx.beginPath();
-    ctx.arc(start.x, start.y, 12, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = "#0f172a";
-    ctx.fillText(String(start.slot), start.x, start.y);
-  }
-}
-
-function drawPlayers(ctx, players) {
-  ctx.textAlign = "center";
-  ctx.textBaseline = "bottom";
-  ctx.font = "12px sans-serif";
-
-  for (const player of players) {
-    const color = colorForPlayer(player.playerId);
-
-    ctx.save();
-    ctx.translate(player.x, player.y);
-    ctx.rotate(player.angle);
-
-    ctx.fillStyle = color;
-    ctx.strokeStyle = player.playerId === state.playerId ? "#ffffff" : "#0f172a";
-    ctx.lineWidth = player.playerId === state.playerId ? 3 : 2;
-
-    ctx.beginPath();
-    ctx.moveTo(18, 0);
-    ctx.lineTo(-10, 9);
-    ctx.lineTo(-5, 0);
-    ctx.lineTo(-10, -9);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-    ctx.restore();
-
-    ctx.fillStyle = "#f8fafc";
-    ctx.fillText(player.displayName, player.x, player.y - 14);
-  }
+  raceScene.update({
+    track: state.track,
+    players: state.gameSnapshot?.players ?? [],
+    localPlayerId: state.playerId,
+    nextCheckpointIndex: localPlayer?.nextCheckpointIndex ?? null
+  });
 }
 
 function getStandings() {
@@ -711,15 +600,6 @@ function getStandings() {
       bestLapMs: player.bestLapMs,
       finished: player.finished
     }));
-}
-
-function resizeCanvas(canvas, width, height) {
-  if (canvas.width === width && canvas.height === height) {
-    return;
-  }
-
-  canvas.width = width;
-  canvas.height = height;
 }
 
 function setRoomBadge(value) {
@@ -756,11 +636,6 @@ function abbreviatePlayerId(playerId) {
   }
 
   return playerId.length <= 10 ? playerId : `${playerId.slice(0, 4)}...${playerId.slice(-4)}`;
-}
-
-function normalizeRotation(rotation) {
-  const normalized = rotation % 360;
-  return normalized < 0 ? normalized + 360 : normalized;
 }
 
 function formatMilliseconds(value, includeMinutes) {
