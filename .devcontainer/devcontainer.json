@@ -10,7 +10,7 @@
       "version": "latest"
     },
     "ghcr.io/devcontainers/features/docker-in-docker": {
-      "moby": true
+      "moby": false
     }
   },
 
